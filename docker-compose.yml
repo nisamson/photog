@@ -22,3 +22,5 @@ services:
     working_dir: /app/
 volumes:
   photog-data:
+    external:
+      true

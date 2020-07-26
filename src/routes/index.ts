@@ -23,4 +23,9 @@ router.get('/browse', async function (req: Request, res: Response, next: NextFun
     }
 });
 
+router.get('/copyright', function (req: Request, res: Response, next: NextFunction) {
+    res.locals.subtitle = 'Copyright';
+    res.render('copyright');
+});
+
 module.exports = router;

@@ -189,3 +189,5 @@ dist
 .yarn/build-state.yml
 .pnp.*
 
+
+*.pem
