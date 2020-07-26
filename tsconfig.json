@@ -1,0 +1,28 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "allowJs": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "moduleResolution": "Node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "lib": [
+            "dom",
+            "es5",
+            "scripthost",
+            "es2015"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

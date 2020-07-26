@@ -1,0 +1,15 @@
+<p class="text-center text-muted">
+    <%
+    var currentYear = new Date().getFullYear();
+    var copyrightTimes;
+    if (currentYear === 2020) {
+        copyrightTimes = "2020";
+    } else {
+        copyrightTimes = `2020 - ${currentYear}`
+    }
+    %>
+    &copy; Copyright Nick Samson <%= copyrightTimes %>
+</p>
+<div class="text-center p-1">
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/2.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/2.0/88x31.png" /></a>
+</div>

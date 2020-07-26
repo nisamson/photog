@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- searchResults: contains SearchResults object -->
+<!--suppress HtmlRequiredTitleElement -->
+<head>
+    <% include partials/head.ejs %>
+</head>
+<body class="px-0">
+<div class="row">
+    <div class="flex-fill">
+        <header>
+            <% include partials/header.ejs %>
+        </header>
+        <main>
+            <div class="jumbotron">
+                <div class="container-fluid">
+                    <h1>
+                        Search Results: Page <%= searchResults.params.page %>
+                    </h1>
+                    <hr/>
+
+                    <div class="text-center">
+                        <% searchResults.meta.forEach((m, idx) => { %>
+                            <% // noinspection JSUnusedLocalSymbols
+                                var meta = m; %>
+                            <%- include partials/thumb.ejs -%>
+                        <% }); %>
+
+                        <hr/>
+
+                        <nav class="d-flex flex-row justify-content-center" aria-label="Search results navigation">
+                            <ul class="pagination">
+
+                                <% var prevParams = searchResults.params.prevPage(); %>
+                                <% if (prevParams) { %>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="/browse?<%- prevParams.toURLEncoded() -%>">Previous</a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" tabindex="-1"
+                                           href="#">Previous</a>
+                                    </li>
+                                <% } %>
+
+                                <li class="page-item active">
+                                    <a class="page-link"
+                                       href="#"><%= searchResults.params.page %></a>
+                                </li>
+
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="/browse?<%- searchResults.params.nextPage().toURLEncoded() -%>">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <%- include partials/modal.ejs -%>
+        </main>
+
+        <footer>
+            <% include partials/footer.ejs %>
+        </footer>
+    </div>
+</div>
+</body>
+
+<% include partials/body-footer.ejs %>
+
+<script>
+    const res = <%- JSON.stringify(searchResults) -%>;
+
+    function findMeta(id) {
+        for (let meta of res.meta) {
+            if (meta._id === id) {
+                return meta;
+            }
+        }
+
+        return null;
+    }
+
+    $('#displayModal').on('show.bs.modal', event => {
+        let img = $(event.relatedTarget)[0];
+        let id = img.id;
+        let meta = findMeta(id);
+
+        let title = $('#displayModalTitle');
+        title.text(meta.title);
+
+        let modalImage = $('#displayModalImageSrc')[0];
+        modalImage.src = `/api/image/${id}.jpg`;
+
+        let txt = meta.tags.join(', ');
+        if (txt) {
+            txt += ', ' + meta._id;
+        } else {
+            txt = meta._id;
+        }
+
+        modalImage.alt = txt;
+
+        let tags = $('#displayModalTags');
+        tags.text(txt);
+    });
+</script>
+</html>
+
