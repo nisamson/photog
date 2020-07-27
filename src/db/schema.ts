@@ -7,7 +7,6 @@ export const photoSchema = new Schema({
     title: String,
     hash: String,
     uploaded: { type: Date, default: Date.now },
-    rawImage: { data: Buffer, contentType: String },
     thumbnail: { data: Buffer, contentType: String },
     tags: [String]
 });
@@ -26,7 +25,6 @@ export interface Photograph extends mongoose.Document {
     title: String,
     hash: String,
     uploaded: Date,
-    rawImage: { data: Buffer, contentType: String },
     thumbnail: { data: Buffer, contentType: String },
     tags: String[]
 }

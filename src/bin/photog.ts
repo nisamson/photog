@@ -8,15 +8,17 @@ import yargs, {Argv} from "yargs";
 import fs from 'fs';
 import mongoose, {UpdateQuery} from "mongoose";
 import mime from 'mime-types';
-import {SHA3} from "sha3";
 import {Photo, Photograph} from "../db/schema";
 import expandTilde from "expand-tilde";
+import azureStorage, {BlobServiceClient, ContainerClient, StorageSharedKeyCredential} from '@azure/storage-blob';
+import crypto from 'crypto';
 
 import sharp from 'sharp';
 
 let dryRun = false;
 let exitOnError = false;
 let quietlyIgnore = false;
+let forceUpload = false;
 
 interface Update {
     id: string,
@@ -44,17 +46,25 @@ async function main() {
                     boolean: true,
                     default: false,
                 }
-            ).option('eoe', {
-                alias: 'e',
-                description: "Exit on error rather than trying to continue.",
-                boolean: true,
-                default: false,
-            }).option('quietly-ignore', {
-                alias: 'q',
-                description: "Quietly ignore irrelevant files.",
-                boolean: true,
-                default: true,
-            });
+            ).option(
+                'force-upload',
+                {
+                    description: 'Deletes and reuploads existing images.',
+                    boolean: true,
+                    default: false,
+                }
+            )
+                .option('eoe', {
+                    alias: 'e',
+                    description: "Exit on error rather than trying to continue.",
+                    boolean: true,
+                    default: false,
+                }).option('quietly-ignore', {
+                    alias: 'q',
+                    description: "Quietly ignore irrelevant files.",
+                    boolean: true,
+                    default: true,
+                });
         }
     )
         .command(
@@ -98,6 +108,8 @@ async function main() {
         .argv;
 
     require('dotenv').config();
+
+
     console.info("Connecting to database.");
     mongoose.set('useFindAndModify', false);
     await initConn(process.env.DB_URL, process.env.DB_USER, process.env.DB_PASS);
@@ -105,22 +117,40 @@ async function main() {
     console.log("Connected to database.");
 
 
-
     const command = args._[0];
 
     try {
         switch (command) {
             case 'upload':
+
+                const sharedKeyCredential = new StorageSharedKeyCredential(
+                    process.env.AZURE_STORAGE_ACCT,
+                    process.env.AZURE_STORAGE_KEY
+                );
+
+                const serviceClient = new BlobServiceClient(
+                    `https://${process.env.AZURE_STORAGE_ACCT}.blob.core.windows.net`,
+                    sharedKeyCredential
+                )
+
+                console.log("Connecting to Azure share.");
+                let webShare = await serviceClient.getContainerClient('$web');
+                console.log("Connected to Azure share.");
+
                 dryRun = args["dry-run"];
                 exitOnError = args.eoe;
                 quietlyIgnore = args["quietly-ignore"];
+                forceUpload = args['force-upload'];
 
                 if (typeof args["photo-dirs"] === 'string') {
                     args["photo-dirs"] = [args["photo-dirs"]];
                 }
 
+                let proc = async (file: string) => {
+                    await processFileOrDir(file, webShare);
+                }
 
-                let promises = Promise.all(args["photo-dirs"].map(expandTilde).map(processFileOrDir));
+                let promises = Promise.all(args["photo-dirs"].map(expandTilde).map(proc));
                 await promises;
 
                 break;
@@ -148,7 +178,7 @@ async function main() {
     }
 }
 
-async function processFile(p: string) {
+async function processFile(p: string, client: ContainerClient) {
 
     let [name, ext] = path.basename(p).split('.');
     let mimeType = mime.contentType(ext);
@@ -184,40 +214,50 @@ async function processFile(p: string) {
                 fit: "inside"
             });
 
-        procStream.jpeg({
-            quality: 92,
-            chromaSubsampling: '4:4:4',
-            force: true
-        })
-
+        console.info(`Processing image ${p}...`);
         let [conv, thumbnail] = await Promise.all([procStream.toBuffer(), thumb.toBuffer()]);
-        let hash = new SHA3(256);
+        let hash = crypto.createHash('RSA-SHA3-256');
         hash.update(conv);
-        let digest = hash.digest().toString("hex");
+        let digest = hash.digest('hex');
+
+        let url = `images/${digest}.jpg`
 
         let doc = new Photo({
             hash: digest,
             name: name,
             title: name,
             thumbnail: {data: thumbnail, contentType: 'image/jpeg'},
-            rawImage: {data: conv, contentType: 'image/jpeg'},
         });
 
         let alreadyExists = await Photo.exists({hash: digest});
 
-        if (!alreadyExists) {
+        if (alreadyExists && forceUpload) {
+            console.info(`Image ${p} already in database, overwriting...`);
+            await Photo.deleteOne({hash: digest});
+        }
+
+        if (!alreadyExists || forceUpload) {
             if (dryRun) {
                 console.info(`Would have saved ${p}, but this is a dry run.`);
                 return;
             }
-            console.info(`Saving ${p}`);
+            console.info(`Saving ${p} to Azure`);
+            let blob = await client.getBlockBlobClient(url);
+            await blob.upload(conv, Buffer.byteLength(conv),
+                {
+                    blobHTTPHeaders: {
+                        blobContentType: 'image/jpeg'
+                    }
+                });
+            console.info(`Uploaded full image to ${url}`);
+            console.info(`Saving ${p} to database`);
             await doc.save();
             console.info(`Saved ${p} to image id ${doc._id}`);
         } else {
             console.info(`${p} is already in the database.`);
         }
     } catch (e) {
-        if (exitOnError) {
+        if (!exitOnError) {
             console.error(e);
         } else {
             throw e;
@@ -226,15 +266,15 @@ async function processFile(p: string) {
 
 }
 
-async function processFileOrDir(p: string) {
+async function processFileOrDir(p: string, client: ContainerClient) {
     p = fs.realpathSync(p);
     let stat = fs.statSync(p);
 
     if (stat.isDirectory()) {
         console.info(`Entered directory: ${p}`);
-        await Promise.all(fs.readdirSync(p).map(f => processFileOrDir(path.join(p, f))));
+        await Promise.all(fs.readdirSync(p).map(f => processFileOrDir(path.join(p, f), client)));
     } else if (stat.isFile()) {
-        await processFile(p);
+        await processFile(p, client);
     }
 }
 

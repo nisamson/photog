@@ -94,14 +94,14 @@ router.get("/image/:fileName", (async (req, res, next) => {
         res.setHeader("Last-Modified", uploaded.toUTCString());
         if (lastModDate <= uploaded) {
             let photo = <Photograph>await Photo
-                .findById(id, 'rawImage')
+                .findById(id, 'hash')
                 .exec();
 
             if (!photo) {
                 return next(createError(404));
             }
-            res.contentType(photo.rawImage.contentType.toString());
-            res.send(photo.rawImage.data);
+            res.status(errors.MOVED_PERMANENTLY);
+            res.redirect(`https://static.nes.sh/images/${photo.hash}.jpg` );
         } else {
             res.status(errors.NOT_MODIFIED);
         }

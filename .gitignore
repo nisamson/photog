@@ -191,3 +191,4 @@ dist
 
 
 *.pem
+prod.env
