@@ -1,3 +1,5 @@
+import {rateLimiterMiddleware} from "./routes/middleware";
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -33,7 +35,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(root, 'public')));
-
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
 

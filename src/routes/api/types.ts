@@ -37,10 +37,10 @@ export class SearchParams {
         if (params.pageSize) {
             this.pageSize = parseInt(params.pageSize);
             if (isNaN(this.pageSize)) {
-                this.pageSize = 8;
+                this.pageSize = 16;
             }
         } else {
-            this.pageSize = 8;
+            this.pageSize = 16;
         }
     }
 
