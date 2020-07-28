@@ -57,6 +57,7 @@ router.get("/thumb/:fileName", (async (req, res, next) => {
 
 
     res.setHeader("Last-Modified", photo.uploaded.toUTCString())
+    res.setHeader('Cache-Control', 'max-age=31536000')
     if (lastModDate <= photo.uploaded) {
         res.contentType(contentType);
         res.send(photo.thumbnail.data);

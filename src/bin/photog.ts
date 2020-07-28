@@ -246,7 +246,8 @@ async function processFile(p: string, client: ContainerClient) {
             await blob.upload(conv, Buffer.byteLength(conv),
                 {
                     blobHTTPHeaders: {
-                        blobContentType: 'image/jpeg'
+                        blobContentType: 'image/jpeg',
+                        blobCacheControl: 'max-age=31536000'
                     }
                 });
             console.info(`Uploaded full image to ${url}`);

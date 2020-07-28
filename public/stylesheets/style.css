@@ -1,8 +1,3 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
-a {
-  color: #00B7FF;
-}
+body { padding-top: 50px; }
+pre  { overflow-x: auto; }
+img.photog-thumb  { max-height: 300px; max-width: 300px; object-fit: contain; }
