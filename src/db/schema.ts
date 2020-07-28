@@ -1,4 +1,5 @@
-import mongoose, {Model} from "mongoose";
+import mongoose, {FilterQuery, Model, PaginateModel, PaginateOptions, PaginateResult} from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const Schema = mongoose.Schema;
 
@@ -14,6 +15,7 @@ export const photoSchema = new Schema({
 photoSchema.index({"$**": "text"});
 photoSchema.index({uploaded: -1});
 photoSchema.index({hash: 1}, {unique: true});
+photoSchema.plugin(mongoosePaginate);
 
 export interface Thumbnail extends mongoose.Document {
     uploaded: Date,
@@ -48,6 +50,6 @@ photoSchema.statics.findMetadataById = async function(id): Promise<Metadata> {
     });
 }
 
-export const Photo = mongoose.model<Photograph>('Photo', photoSchema);
+export const Photo = <PaginateModel<Photograph>>mongoose.model<Photograph>('Photo', photoSchema);
 
 

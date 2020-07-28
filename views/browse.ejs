@@ -46,13 +46,20 @@
 
                                 <li class="page-item active">
                                     <a class="page-link"
-                                       href="#"><%= searchResults.params.page %></a>
+                                       href="#"><%= searchResults.params.page %> / <%= searchResults.totalPages %></a>
                                 </li>
 
-                                <li class="page-item">
-                                    <a class="page-link"
-                                       href="/browse?<%- searchResults.params.nextPage().toURLEncoded() -%>">Next</a>
-                                </li>
+                                <% if (searchResults.totalPages > searchResults.params.page) { %>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="/browse?<%- searchResults.params.nextPage().toURLEncoded() -%>">Next</a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item disabled">
+                                        <a class="page-link"
+                                           href="#">Next</a>
+                                    </li>
+                                <% } %>
                             </ul>
                         </nav>
                     </div>

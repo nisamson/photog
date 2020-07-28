@@ -76,7 +76,8 @@ export class SearchParams {
 
 export interface SearchResults {
     meta: Metadata[],
-    params: SearchParams
+    params: SearchParams,
+    totalPages: number
 }
 
 

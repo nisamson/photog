@@ -23,6 +23,7 @@
     "http-status-codes": "^1.4.0",
     "mime-types": "^2.1.27",
     "mongoose": "^5.9.25",
+    "mongoose-paginate-v2": "^1.3.9",
     "morgan": "~1.9.1",
     "serve-favicon": "^2.5.0",
     "sha3": "^2.1.3",
@@ -39,6 +40,7 @@
     "@types/yargs": "^15.0.5",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
+    "@types/mongoose-paginate-v2": "^1.3.7",
     "eslint": "^7.5.0",
     "typescript": "^3.9.7"
   }

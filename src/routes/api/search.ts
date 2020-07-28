@@ -1,28 +1,34 @@
 import {SearchParams, SearchResults} from "./types";
-import {Metadata, Photo} from "../../db/schema";
+import {Metadata, Photo, Photograph} from "../../db/schema";
+import {FilterQuery, PaginateResult} from "mongoose";
 
 
 export async function searchPhotos(params: SearchParams): Promise<SearchResults> {
-    let query = Photo.find({
+    let queryDict: FilterQuery<Photograph> = {
         uploaded: { $gte: params.after, $lte: params.before }
-    });
+    };
 
     if (params.text) {
-        query = query.find({
+        queryDict = {
+            ...queryDict,
             $text: {$search: params.text}
-        });
+        }
     }
 
-    let skip = (params.page - 1) * params.pageSize;
-
-    let results = <Metadata[]>await query.skip(skip)
-        .sort({uploaded: 1})
-        .select('name title hash uploaded tags')
-        .limit(params.pageSize)
-        .exec();
+    let results = <PaginateResult<Metadata>>await Photo.paginate(
+        queryDict,
+        {
+            sort: {uploaded: -1},
+            select: 'name title hash uploaded tags',
+            limit: params.pageSize,
+            leanWithId: true,
+            page: params.page,
+        }
+    );
 
     return {
-        meta: results,
-        params: params
+        meta: results.docs,
+        params: params,
+        totalPages: results.totalPages
     };
 }

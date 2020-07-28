@@ -110,7 +110,7 @@ async function main() {
     require('dotenv').config();
 
 
-    console.info("Connecting to database.");
+    console.info(`Connecting to database at ${process.env.DB_URL}.`);
     mongoose.set('useFindAndModify', false);
     await initConn(process.env.DB_URL, process.env.DB_USER, process.env.DB_PASS);
     mongoose.set('useFindAndModify', false);
