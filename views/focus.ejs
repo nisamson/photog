@@ -14,9 +14,15 @@
         <main>
             <div class="jumbotron">
                 <div class="container-fluid">
-                    <h3 class="text-center">
-                        <%= photo.title %>
-                    </h3>
+                    <div class="row d-flex justify-content-around">
+                        <h3>
+                            <%= photo.title %>
+                        </h3>
+                        <form method="get" action="/edit/<%= photo._id %>" class="form-inline">
+                            <button type="submit" class="btn btn-sm btn-primary">Edit</button>
+                        </form>
+                    </div>
+
                     <hr/>
 
                     <img class="img-fluid d-block mx-auto" src="https://static.nes.sh/images/<%= photo.hash %>.jpg"
