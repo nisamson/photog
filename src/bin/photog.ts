@@ -14,6 +14,7 @@ import azureStorage, {BlobServiceClient, ContainerClient, StorageSharedKeyCreden
 import crypto from 'crypto';
 
 import sharp from 'sharp';
+import {createUser} from "../db/auth";
 
 let dryRun = false;
 let exitOnError = false;
@@ -100,6 +101,20 @@ async function main() {
                     }
                 );
             }
+        ).command(
+            'useradd <username> <password>',
+            'Adds an admin to the DB.',
+            (yargs) => {
+                return yargs.positional("username",
+                    {
+                        type: "string"
+                    }
+                    )
+                    .positional("password",
+                        {
+                            type: "string"
+                        })
+            }
         )
         .demandCommand()
         .completion()
@@ -167,6 +182,13 @@ async function main() {
                 await processUpdate(update);
                 break;
 
+            case 'useradd':
+                await createUser(
+                    args.username,
+                    args.password
+                );
+                console.log(`Added user ${args.username}`);
+                break;
             default:
                 console.error("No command specified. See --help.");
                 process.exit(1);

@@ -100,7 +100,10 @@
         title.text(meta.title);
 
         let modalImage = $('#displayModalImageSrc')[0];
-        modalImage.src = `/api/image/${id}.jpg`;
+        modalImage.src = `https://static.nes.sh/images/${meta.hash}.jpg`;
+
+        let permalink = $('#displayModalFocusLink')[0];
+        permalink.href = `/focus/${meta._id}`;
 
         let txt = meta.tags.join(', ');
         if (txt) {

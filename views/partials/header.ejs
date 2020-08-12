@@ -11,6 +11,11 @@
             <a class="nav-item nav-link" href="/">Home</a>
             <a class="nav-item nav-link" href="/browse">Browse</a>
             <a class="nav-item nav-link" href="/copyright">Copyright and Licensing</a>
+            <% if (loggedIn) { %>
+                <a class="nav-item nav-link" href="/logout" >Logout</a>
+            <% } else { %>
+                <a class="nav-item nav-link" href="/login" >Login</a>
+            <% } %>
         </div>
         <form class="form-inline my-2 my-lg-0" action="/browse" method="get">
             <input id="searchText" name="text" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">

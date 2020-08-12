@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- searchResults: contains SearchResults object -->
+<!--suppress HtmlRequiredTitleElement -->
+<head>
+    <% include partials/head.ejs %>
+</head>
+<body class="px-0">
+<div class="row">
+    <div class="flex-fill">
+        <header>
+            <% include partials/header.ejs %>
+        </header>
+        <main>
+            <div class="jumbotron">
+                <div class="container-fluid">
+                    <h3 class="text-center">
+                        <%= photo.title %>
+                    </h3>
+                    <hr/>
+
+                    <img class="img-fluid d-block mx-auto" src="https://static.nes.sh/images/<%= photo.hash %>.jpg"
+                         alt="<%= photo.title %>" style="max-height: 80vh">
+
+                    <hr/>
+
+                    <div class="text-center">
+                        <% if (photo.tags.length !== 0) { %>
+                            <p>
+                                <span>Tags: <%= photo.tags.join(', ') %></span>
+                            </p>
+                        <% } %>
+                        <p>
+                            <span class="text-muted">Image ID: <%= photo._id %></span>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <%- include partials/modal.ejs -%>
+        </main>
+
+        <footer>
+            <% include partials/footer.ejs %>
+        </footer>
+    </div>
+</div>
+</body>
+
+<% include partials/body-footer.ejs %>
+</html>
+

@@ -1,6 +1,11 @@
 import {NextFunction, Request, Response} from "express";
 import {SearchParams} from "./api/types";
 import {searchPhotos} from "./api/search";
+import {Metadata, Photo} from "../db/schema";
+import createHttpError from "http-errors";
+import mongoose from 'mongoose';
+import passport from 'passport';
+import {ensureLoggedIn, ensureLoggedOut} from "connect-ensure-login";
 
 var express = require('express');
 var router = express.Router();
@@ -21,6 +26,46 @@ router.get('/browse', async function (req: Request, res: Response, next: NextFun
     } catch (e) {
         return next(e);
     }
+});
+
+router.get('/focus/:imageId', async function (req: Request, res: Response, next: NextFunction) {
+    try {
+        res.setHeader('Cache-Control', 'max-age=600')
+
+        if (!mongoose.Types.ObjectId.isValid(req.params.imageId)) {
+            return next(createHttpError(404));
+        }
+
+        let photo = await Photo.findById(req.params.imageId)
+            .select('name title hash uploaded tags')
+            .lean(true) as Metadata;
+
+        if (!photo) {
+            return next(createHttpError(404));
+        }
+
+        res.locals.subtitle = `Focus on "${photo.title}"`;
+        res.locals.photo = photo;
+        res.render('focus');
+    } catch (e) {
+        return next(e);
+    }
+});
+
+router.get('/login', ensureLoggedOut('/'), async function (req: Request, res: Response, next: NextFunction) {
+    res.locals.subtitle = 'Login';
+    res.locals.error = typeof req.query.error !== 'undefined';
+    res.render('login');
+});
+
+router.post('/login', passport.authenticate('local', {
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login?error=true',
+}));
+
+router.get('/logout', ensureLoggedIn('/login'), async function(req, res, next) {
+    req.logOut();
+    res.redirect('/');
 });
 
 router.get('/copyright', function (req: Request, res: Response, next: NextFunction) {
