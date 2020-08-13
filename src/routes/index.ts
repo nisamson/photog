@@ -102,7 +102,8 @@ router.post('/edit/:imageId', ensureLoggedIn('/login'), async function(req, res,
 
         let data = req.body;
         let title = data.title;
-        let tags = (data.tags).split('\n');
+        let tags = (data.tags as string).split('\n').map(s => s.trim());
+        tags = [...new Set(tags)];
 
         photo.title = title;
         photo.tags = tags;

@@ -14,9 +14,9 @@
         <main>
             <div class="jumbotron">
                 <div class="container-fluid">
-                    <h1>
-                        Search Results: Page <%= searchResults.params.page %>
-                    </h1>
+                    <h3>
+                        Search Results<% if (searchResults.params.text) { %> for "<%= searchResults.params.text.trim() -%>"<% } %>: Page <%= searchResults.params.page %>
+                    </h3>
                     <hr/>
 
                     <div class="text-center">

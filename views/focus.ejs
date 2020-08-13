@@ -4,6 +4,12 @@
 <!--suppress HtmlRequiredTitleElement -->
 <head>
     <% include partials/head.ejs %>
+    <meta property="og:url" content="https://photog.nes.sh/focus/<%= photo._id %>"/>
+    <meta property="og:title" content="<%= photo.title -%>"/>
+    <meta property="og:description" content="<%= photo.tags.join(', ') %>"/>
+    <meta property="og:image" content="https://static.nes.sh/images/<%= photo.hash %>.jpg"/>
+    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:alt" content="<%= photo.title -%>"/>
 </head>
 <body class="px-0">
 <div class="row">
