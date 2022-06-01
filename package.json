@@ -34,7 +34,7 @@
     "rate-limiter-flexible": "^2.1.9",
     "serve-favicon": "^2.5.0",
     "sha3": "^2.1.3",
-    "sharp": "^0.25.4",
+    "sharp": "^0.30.5",
     "yargs": "^15.4.1"
   },
   "devDependencies": {
